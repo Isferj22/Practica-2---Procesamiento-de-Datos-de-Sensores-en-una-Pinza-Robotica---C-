@@ -4,27 +4,36 @@
 using namespace std;
 
 int main() {
-    float datos[100][3];      // GALGA, FUERZA_IZQ, FUERZA_DER
-    int ids[100];
-    float galga[100];
-    float fuerza_izq[100];
-    float fuerza_der[100];
 
-    int n = 0;
+    // Arrays para almacenar los datos
+    float datos[100][3];      // Matriz general
+    int ids[100];             // Identificadores
+    float galga[100];         // Sensor galga
+    float fuerza_izq[100];    // Fuerza izquierda
+    float fuerza_der[100];    // Fuerza derecha
 
+    int n = 0; // contador de muestras
+
+    // Abrir archivo de entrada
     ifstream archivo("datos_pinza.txt");
+
+    // Comprobar se si abre correctamente
     if (!archivo.is_open()) {
         cerr << "Error al abrir el archivo de entrada" << endl;
         return 1;
     }
 
+    // Lectura de datos desde el archivo
     while (archivo >> ids[n] >> galga[n] >> fuerza_izq[n] >> fuerza_der[n] && n < 100) {
+        // Lo Guardamos tambien en la matriz
         datos[n][0] = galga[n];
         datos[n][1] = fuerza_izq[n];
         datos[n][2] = fuerza_der[n];
         n++;
     }
-    archivo.close();
+    archivo.close(); //cerramos el archivo
+
+    // Ponemos un limite de datos a mostrar (100)
     if (n == 100) cout << "Se alcanzó el límite de 100 datos" << endl;
 
     // Ordenar por ID
@@ -67,10 +76,12 @@ int main() {
          << "\nDer: " << media_der << endl;
 
     // Maximos y minimos
+    // Inicializamos el maximo y el minimo con el primer valor del array
     float max_galga=galga[0], min_galga=galga[0];
     float max_izq=fuerza_izq[0], min_izq=fuerza_izq[0];
     float max_der=fuerza_der[0], min_der=fuerza_der[0];
 
+    // Recorremos el resto de datos
     for(int i=1;i<n;i++){
         if(galga[i]>max_galga) max_galga=galga[i];
         if(galga[i]<min_galga) min_galga=galga[i];
@@ -80,6 +91,7 @@ int main() {
         if(fuerza_der[i]<min_der) min_der=fuerza_der[i];
     }
 
+    // Mostrar resultados
     cout << "\nMaximos y minimos:\n"
          << "Galga -> Max: " << max_galga << " Min: " << min_galga << endl
          << "Izq   -> Max: " << max_izq << " Min: " << min_izq << endl
@@ -94,17 +106,20 @@ int main() {
 
     // Archivo de salida
     ofstream salida("resultado_pinza.txt");
+    // Comprobamos que el archivo se haya creado
     if(!salida.is_open()){
         cerr << "Error al crear el archivo de salida" << endl;
         return 1;
     }
 
+    // Guardamos datos originales
     salida << "RESULTADOS DEL SISTEMA DE PINZA ROBOTICA\n\n";
     salida << "Datos ordenados:\n";
     for(int i=0;i<n;i++){
         salida << ids[i] << " " << galga[i] << " " << fuerza_izq[i] << " " << fuerza_der[i] << endl;
     }
 
+    // Medias, maximos, minimos y fuerza total
     salida << "\nMedias:\nGalga = " << media_galga
            << "\nFuerza izquierda = " << media_izq
            << "\nFuerza derecha = " << media_der << endl;
@@ -119,7 +134,9 @@ int main() {
     // Clasificacion estable/ inestable
     salida << "\nClasificacion:\n";
     for(int i=0;i<n;i++){
+        //diferencia entre fuerzas
         float diff = abs(fuerza_izq[i]-fuerza_der[i]);
+        // Inestable
         if(diff>0.15){
             cout << "Estado muestra " << ids[i] << ": INESTABLE" << endl;
             salida << ids[i] << " INESTABLE" << endl;
@@ -129,6 +146,6 @@ int main() {
         }
     }
 
-    salida.close();
+    salida.close(); //cerrarmos el archivo
     return 0;
 }
